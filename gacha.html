@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>Taiwan Pokémon Gacha</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2em;
+      background-image: url('images/background.jpg.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+    h1 {
+      color: white;
+    }
+    button {
+      padding: 1em 2em;
+      font-size: 1.2em;
+      margin-top: 1em;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 2em;
+      font-size: 1.2em;
+      position: relative;
+    }
+    .card {
+      padding: 1em;
+      border-radius: 8px;
+      margin: 0.5em;
+      display: inline-block;
+      min-width: 100px;
+      vertical-align: top;
+      position: relative;
+      z-index: 1;
+    }
+    .card img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 0.5em;
+    }
+    .SSR { background-color: gold; color: white; }
+    .SR { background-color: purple; color: white; }
+    .R { background-color: dodgerblue; color: white; }
+    .N { background-color: gray; color: white; }
+    .stats {
+      margin-top: 2em;
+      font-size: 1em;
+      background: #fff;
+      padding: 1em;
+      border-radius: 10px;
+      display: inline-block;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .gold-glow {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, gold, rgba(255,215,0,0.3), transparent);
+      border-radius: 50%;
+      animation: glow 1s ease-out forwards;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: white;
+      border-radius: 50%;
+      animation: sparkle 1s ease-out forwards;
+    }
+    @keyframes glow {
+      from { opacity: 0; transform: scale(0.5) translateX(-50%); }
+      to { opacity: 1; transform: scale(1.5) translateX(-50%); }
+    }
+    @keyframes sparkle {
+      from { transform: translateY(0) scale(1); opacity: 1; }
+      to { transform: translateY(-50px) scale(0.5); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Taiwan Pokémon Gacha</h1>
+  <button id="drawButton" onclick="drawCard()">Summon！</button>
+  <button id="resetButton" onclick="resetGame()">Reset</button>
+  <div class="result" id="result"></div>
+  <div class="stats" id="stats">
+    <h3>抽卡統計</h3>
+    <p>SSR: <span id="countSSR">0</span></p>
+    <p>SR: <span id="countSR">0</span></p>
+    <p>R: <span id="countR">0</span></p>
+    <p>N: <span id="countN">0</span></p>
+    <p>Results: <span id="totalCount">0</span></p>
+  </div>
+
+  <script>
+    const cardPool = {
+      SSR: ['Leopard Cat', 'Formosan Black Bear', 'Pangolin'],
+      SR: ['Formosan Muntjac', 'Formosan Blue Magpie'],
+      R: ['Bumbler bird', 'Taiwan Barbet'],
+      N: ['Stray dog', 'turtle dove']
+    };
+
+    const imageMap = {
+      'Leopard Cat': 'images/leopard_cat.jpg',
+      'Formosan Black Bear': 'images/formosan_bear.jpg',
+      'Pangolin': 'images/pangolin.jpg',
+      'Formosan Muntjac': 'images/muntjac.jpg',
+      'Formosan Blue Magpie': 'images/magpie.jpg',
+      'Bumbler bird': 'images/Bumbler bird.jpg',
+      'Taiwan Barbet': 'images/Taiwan barbet.jpg',
+      'Stray dog': 'images/stray dog.jpg',
+      'turtle dove': 'images/Turtle dove.jpg'
+    };
+
+    const probabilities = [
+      { rarity: 'SSR', rate: 0.01 },
+      { rarity: 'SR', rate: 0.05 },
+      { rarity: 'R', rate: 0.20 },
+      { rarity: 'N', rate: 0.74 }
+    ];
+
+    const stats = {
+      SSR: 0,
+      SR: 0,
+      R: 0,
+      N: 0,
+      total: 0
+    };
+
+    function updateStatsDisplay() {
+      document.getElementById('countSSR').textContent = stats.SSR;
+      document.getElementById('countSR').textContent = stats.SR;
+      document.getElementById('countR').textContent = stats.R;
+      document.getElementById('countN').textContent = stats.N;
+      document.getElementById('totalCount').textContent = stats.total;
+    }
+
+    function drawOne() {
+      let rand = Math.random();
+      let cumulative = 0;
+      for (let i = 0; i < probabilities.length; i++) {
+        cumulative += probabilities[i].rate;
+        if (rand < cumulative) {
+          const rarity = probabilities[i].rarity;
+          const card = cardPool[rarity][Math.floor(Math.random() * cardPool[rarity].length)];
+          return { rarity, card };
+        }
+      }
+    }
+
+    function drawCard() {
+      const resultDiv = document.getElementById('result');
+      const drawButton = document.getElementById('drawButton');
+      resultDiv.innerHTML = '';
+
+      const result = drawOne();
+      const cardEl = document.createElement('div');
+      cardEl.className = `card ${result.rarity}`;
+
+      const img = document.createElement('img');
+      img.src = imageMap[result.card] || 'images/default.png';
+      img.alt = result.card;
+
+      const label = document.createElement('div');
+      label.textContent = `[${result.rarity}] ${result.card}`;
+
+      cardEl.appendChild(img);
+      cardEl.appendChild(label);
+      resultDiv.appendChild(cardEl);
+
+      if (result.rarity === 'SSR') {
+        const glow = document.createElement('div');
+        glow.className = 'gold-glow';
+        cardEl.appendChild(glow);
+
+        for (let i = 0; i < 10; i++) {
+          const star = document.createElement('div');
+          star.className = 'star';
+          star.style.left = `${Math.random() * 100}px`;
+          star.style.top = `${Math.random() * 100}px`;
+          cardEl.appendChild(star);
+        }
+
+        drawButton.disabled = true;
+        drawButton.textContent = 'SSR!!!';
+      }
+
+      stats[result.rarity]++;
+      stats.total++;
+      updateStatsDisplay();
+    }
+
+    function resetGame() {
+      stats.SSR = 0;
+      stats.SR = 0;
+      stats.R = 0;
+      stats.N = 0;
+      stats.total = 0;
+      updateStatsDisplay();
+
+      document.getElementById('result').innerHTML = '';
+      const drawButton = document.getElementById('drawButton');
+      drawButton.disabled = false;
+      drawButton.textContent = 'Summon！';
+    }
+  </script>
+</body>
+</html>
