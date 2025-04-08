@@ -144,12 +144,7 @@
         return { rarity, card };
       }
     }
-  }
-
-  function getImagePath(cardName) {
-    // 將空格換成 %20，並統一轉小寫
-    const safeName = cardName.toLowerCase().replaceAll(' ', '%20');
-    return `images/${safeName}.jpg`;
+ 
   }
 
   function drawCard() {
