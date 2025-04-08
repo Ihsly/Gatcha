@@ -104,115 +104,112 @@
 
   <script>
     const cardPool = {
-      SSR: ['Leopard Cat', 'Formosan Black Bear', 'Pangolin'],
-      SR: ['Formosan Muntjac', 'Formosan Blue Magpie'],
-      R: ['Bumbler bird', 'Taiwan Barbet'],
-      N: ['Stray dog', 'turtle dove']
-    };
+    SSR: ['Leopard Cat', 'Formosan Black Bear', 'Pangolin'],
+    SR: ['Formosan Muntjac', 'Formosan Blue Magpie'],
+    R: ['Bumbler bird', 'Taiwan Barbet'],
+    N: ['Stray dog', 'turtle dove']
+  };
 
-    const imageMap = {
-      'Leopard Cat': 'images/leopard_cat.jpg',
-      'Formosan Black Bear': 'images/formosan_bear.jpg',
-      'Pangolin': 'images/pangolin.jpg',
-      'Formosan Muntjac': 'images/muntjac.jpg',
-      'Formosan Blue Magpie': 'images/magpie.jpg',
-      'Bumbler bird': 'images/Bumbler bird.JPG',
-      'Taiwan Barbet': 'images/Taiwan barbet.jpg',
-      'Stray dog': 'images/Stray dog.jpg',
-      'turtle dove': 'images/Turtle dove.jpg'
-    };
+  const probabilities = [
+    { rarity: 'SSR', rate: 0.01 },
+    { rarity: 'SR', rate: 0.05 },
+    { rarity: 'R', rate: 0.20 },
+    { rarity: 'N', rate: 0.74 }
+  ];
 
-    const probabilities = [
-      { rarity: 'SSR', rate: 0.01 },
-      { rarity: 'SR', rate: 0.05 },
-      { rarity: 'R', rate: 0.20 },
-      { rarity: 'N', rate: 0.74 }
-    ];
+  const stats = {
+    SSR: 0,
+    SR: 0,
+    R: 0,
+    N: 0,
+    total: 0
+  };
 
-    const stats = {
-      SSR: 0,
-      SR: 0,
-      R: 0,
-      N: 0,
-      total: 0
-    };
+  function updateStatsDisplay() {
+    document.getElementById('countSSR').textContent = stats.SSR;
+    document.getElementById('countSR').textContent = stats.SR;
+    document.getElementById('countR').textContent = stats.R;
+    document.getElementById('countN').textContent = stats.N;
+    document.getElementById('totalCount').textContent = stats.total;
+  }
 
-    function updateStatsDisplay() {
-      document.getElementById('countSSR').textContent = stats.SSR;
-      document.getElementById('countSR').textContent = stats.SR;
-      document.getElementById('countR').textContent = stats.R;
-      document.getElementById('countN').textContent = stats.N;
-      document.getElementById('totalCount').textContent = stats.total;
-    }
-
-    function drawOne() {
-      let rand = Math.random();
-      let cumulative = 0;
-      for (let i = 0; i < probabilities.length; i++) {
-        cumulative += probabilities[i].rate;
-        if (rand < cumulative) {
-          const rarity = probabilities[i].rarity;
-          const card = cardPool[rarity][Math.floor(Math.random() * cardPool[rarity].length)];
-          return { rarity, card };
-        }
+  function drawOne() {
+    let rand = Math.random();
+    let cumulative = 0;
+    for (let i = 0; i < probabilities.length; i++) {
+      cumulative += probabilities[i].rate;
+      if (rand < cumulative) {
+        const rarity = probabilities[i].rarity;
+        const card = cardPool[rarity][Math.floor(Math.random() * cardPool[rarity].length)];
+        return { rarity, card };
       }
     }
+  }
 
-    function drawCard() {
-      const resultDiv = document.getElementById('result');
-      const drawButton = document.getElementById('drawButton');
-      resultDiv.innerHTML = '';
+  function getImagePath(cardName) {
+    // 將空格換成 %20，並統一轉小寫
+    const safeName = cardName.toLowerCase().replaceAll(' ', '%20');
+    return `images/${safeName}.jpg`;
+  }
 
-      const result = drawOne();
-      const cardEl = document.createElement('div');
-      cardEl.className = `card ${result.rarity}`;
+  function drawCard() {
+    const resultDiv = document.getElementById('result');
+    const drawButton = document.getElementById('drawButton');
+    resultDiv.innerHTML = '';
 
-      const img = document.createElement('img');
-      img.src = imageMap[result.card] || 'images/default.png';
-      img.alt = result.card;
+    const result = drawOne();
+    const cardEl = document.createElement('div');
+    cardEl.className = `card ${result.rarity}`;
 
-      const label = document.createElement('div');
-      label.textContent = `[${result.rarity}] ${result.card}`;
+    const img = document.createElement('img');
+    img.src = getImagePath(result.card);
+    img.alt = result.card;
+    img.onerror = function () {
+      this.src = 'images/default.png';
+    };
 
-      cardEl.appendChild(img);
-      cardEl.appendChild(label);
-      resultDiv.appendChild(cardEl);
+    const label = document.createElement('div');
+    label.textContent = `[${result.rarity}] ${result.card}`;
 
-      if (result.rarity === 'SSR') {
-        const glow = document.createElement('div');
-        glow.className = 'gold-glow';
-        cardEl.appendChild(glow);
+    cardEl.appendChild(img);
+    cardEl.appendChild(label);
+    resultDiv.appendChild(cardEl);
 
-        for (let i = 0; i < 10; i++) {
-          const star = document.createElement('div');
-          star.className = 'star';
-          star.style.left = `${Math.random() * 100}px`;
-          star.style.top = `${Math.random() * 100}px`;
-          cardEl.appendChild(star);
-        }
+    if (result.rarity === 'SSR') {
+      const glow = document.createElement('div');
+      glow.className = 'gold-glow';
+      cardEl.appendChild(glow);
 
-        drawButton.disabled = true;
-        drawButton.textContent = 'SSR!!!';
+      for (let i = 0; i < 10; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = `${Math.random() * 100}px`;
+        star.style.top = `${Math.random() * 100}px`;
+        cardEl.appendChild(star);
       }
 
-      stats[result.rarity]++;
-      stats.total++;
-      updateStatsDisplay();
+      drawButton.disabled = true;
+      drawButton.textContent = 'SSR!!!';
     }
 
-    function resetGame() {
-      stats.SSR = 0;
-      stats.SR = 0;
-      stats.R = 0;
-      stats.N = 0;
-      stats.total = 0;
-      updateStatsDisplay();
+    stats[result.rarity]++;
+    stats.total++;
+    updateStatsDisplay();
+  }
 
-      document.getElementById('result').innerHTML = '';
-      const drawButton = document.getElementById('drawButton');
-      drawButton.disabled = false;
-      drawButton.textContent = 'Summon！';
-    }
+  function resetGame() {
+    stats.SSR = 0;
+    stats.SR = 0;
+    stats.R = 0;
+    stats.N = 0;
+    stats.total = 0;
+    updateStatsDisplay();
+
+    document.getElementById('result').innerHTML = '';
+    const drawButton = document.getElementById('drawButton');
+    drawButton.disabled = false;
+    drawButton.textContent = 'Summon！';
+  }
   </script>
 </body>
 </html>
