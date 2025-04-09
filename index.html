@@ -103,6 +103,11 @@
   </div>
 
   <script>
+    function getImagePath(cardName) {
+    const fileName = cardName.toLowerCase().replace(/\s+/g, '_') + '.png';
+    return 'images/' + fileName;
+  }
+        
     const cardPool = {
     SSR: ['Leopard Cat', 'Formosan Black Bear', 'Pangolin'],
     SR: ['Formosan Muntjac', 'Formosan Blue Magpie'],
