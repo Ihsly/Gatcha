@@ -9,10 +9,12 @@
       text-align: center;
       padding: 2em;
       background-image: url('images/background.jpg.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
+      background-size: contain;      /* ⭐讓整張圖片完整顯示 */
+      background-repeat: no-repeat;  /* ⭐不重複 */
+      background-position: center;   /* ⭐置中顯示 */
+      background-attachment: fixed;  /* ⭐背景固定不捲動（可選） */
+      background-color: black;       /* ⭐避免空白邊出現時太突兀 */
+}
     }
     h1 {
       color: white;
